@@ -355,13 +355,13 @@ function createApp(deps = {}) {
           return sendJson(res, 404, { error: 'Selection not found or expired' });
         }
 
-        let magnet = normalizeMagnet(sel.magnet);
+        let magnet = null;
         let infoHash = String(sel.infoHash || extractHash(magnet) || '').toLowerCase();
         let torrentFile = null;
         let torrentFileName = String(sel.fileName || '').trim() || null;
 
         // Fallback: when stream list could not build a magnet, fetch + parse torrent at resolve time.
-        if ((!magnet || !infoHash) && sel.downloadUrl) {
+        if (sel.downloadUrl) {
           try {
             torrentFile = await loginAndFetchTorrentFile({
               username: creds.username,
@@ -370,7 +370,7 @@ function createApp(deps = {}) {
             });
             const torrentMeta = parseTorrentMeta(torrentFile);
             infoHash = String(torrentMeta.infoHash || '').toLowerCase();
-            if (!magnet) magnet = torrentToMagnet(torrentMeta);
+            magnet = null;
             if (!torrentFileName) torrentFileName = torrentMeta.fileName || null;
           } catch (err) {
             debugErr('resolve-torrent-fallback-failed', { selKey, error: err?.message || String(err || '') });
