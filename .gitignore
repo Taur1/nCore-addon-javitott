@@ -7,3 +7,6 @@ tmp.run.out.log
 test/api.test.js
 test/api.test.js
 test/api.test.js
+
+node_modules/
+api/app.js.bak

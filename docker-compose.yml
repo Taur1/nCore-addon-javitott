@@ -1,0 +1,9 @@
+services:
+  ncore-addon:
+    build: .
+    container_name: ncore-addon
+    ports:
+      - "3005:3000"
+    restart: unless-stopped
+    environment:
+      - TORBOX_DEBUG=true
