@@ -461,7 +461,7 @@ function createApp(deps = {}) {
           if (entry?.expiresAt > Date.now()) {
             list = entry.list;
           } else {
-            list = await withTimeout(_getMyTorrents({ apiKey: creds.torboxApiKey }), 2000);
+            list = await withTimeout(_getMyTorrents({ apiKey: creds.torboxApiKey }), 8000);
             myListCache.set(key, { list, expiresAt: Date.now() + MYLIST_TTL });
           }
           for (const t of list || []) {
@@ -476,7 +476,11 @@ function createApp(deps = {}) {
             const hashes = results.slice(0, STREAM_RESULT_LIMIT)
               .map(r => String(r.infoHash || extractHash(normalizeMagnet(r.magnet)) || '').toLowerCase())
               .filter(Boolean);
-            cachedMap = await withTimeout(_checkCached({ apiKey: creds.torboxApiKey, infoHashes: hashes }), 1500);
+            cachedMap = await withTimeout(
+              _checkCached({ apiKey: creds.torboxApiKey, infoHashes: hashes }),
+              8000
+            );
+            console.error("[TORBOX-CHECKCACHED-MAP]", JSON.stringify(Object.fromEntries(cachedMap)));
           } catch { /* ignore */ }
         }
 
@@ -489,8 +493,9 @@ function createApp(deps = {}) {
           if (!infoHash && !magnet && !downloadUrl) continue;
 
           const inMyList   = infoHash ? (myListByHash.get(infoHash) || null) : null;
-          const isReady    = inMyList ? isTorrentReady(inMyList) : false;
+          const isReady = inMyList ? isTorrentReady(inMyList) : false;
           const globalCached = infoHash ? (cachedMap.get(infoHash) ?? null) : null;
+
 
           // cached: true=kÄ‚Â©sz, false=tÄ‚Â¶ltÄąâ€dik vagy uncached, null=ismeretlen
           let cached;
