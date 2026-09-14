@@ -286,6 +286,30 @@ function createApp(deps = {}) {
       }
     }
 
+    // Tokenes configure oldal
+    const tokenConfigureM = path.match(/^\/([^/]+)\/configure\/?$/);
+    if (
+      (req.method === 'GET' || req.method === 'HEAD')
+      && tokenConfigureM
+    ) {
+      try {
+        decodeConfig(tokenConfigureM[1]);
+
+        if (req.method === 'HEAD') {
+          setCorsHeaders(res);
+          res.statusCode = 200;
+          res.setHeader('content-type', 'text/html; charset=utf-8');
+          return res.end();
+        }
+
+        return configureHtml
+          ? sendHtml(res, 200, configureHtml)
+          : sendHtml(res, 500, 'Missing configure.html');
+      } catch (e) {
+        return sendJson(res, 400, { error: e.message });
+      }
+    }
+
     // Setup manifest
     if ((req.method === 'GET' || req.method === 'HEAD') && path === '/manifest.json') {
       if (req.method === 'HEAD') {
@@ -476,7 +500,7 @@ function createApp(deps = {}) {
             const hashes = results.slice(0, STREAM_RESULT_LIMIT)
               .map(r => String(r.infoHash || extractHash(normalizeMagnet(r.magnet)) || '').toLowerCase())
               .filter(Boolean);
-            cachedMap = await withTimeout(_checkCached({ apiKey: creds.torboxApiKey, infoHashes: hashes }), 1500);
+            console.error('[CACHE-DEBUG] checking', JSON.stringify({ count: hashes.length, hashes })); const cacheStart = Date.now(); cachedMap = await withTimeout(_checkCached({ apiKey: creds.torboxApiKey, infoHashes: hashes }), 1500); console.error('[CACHE-DEBUG] result', JSON.stringify({ ms: Date.now() - cacheStart, entries: [...cachedMap.entries()] }));
           } catch { /* ignore */ }
         }
 

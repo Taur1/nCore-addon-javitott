@@ -244,7 +244,7 @@
             <button class="btn btn-primary" id="generate-btn" type="submit">Manifest Generálás</button>
             <button class="btn btn-ghost" id="clear-btn" type="button">Mezők Törlése</button>
           </div>
-          <p class="helper">A kulcsokat nem mentjük adatbázisba, tokenbe kódolva mennek a személyes manifest URL-be.</p>
+          <p class="helper">A megadott nCore és TorBox adatok nem kerülnek adatbázisba. A konfiguráció AES-256-GCM titkosítással, szerveroldali titkos kulccsal védett tokenben kerül tárolásra, amely a személyes manifest URL része.</p>
           <div class="status" id="status"></div>
         </form>
 
@@ -282,7 +282,7 @@
     const clearBtn = document.getElementById('clear-btn');
     const generateBtn = document.getElementById('generate-btn');
 
-    const basePath = location.pathname.replace(/\/configure\/?$/, '').replace(/\/$/, '');
+    const basePath = /^\/[^/]+\/configure\/?$/.test(location.pathname) ? "" : location.pathname.replace(/\/configure\/?$/, "").replace(/\/$/, "");
     let latestManifestUrl = '';
 
     function setStatus(message, kind) {
@@ -351,6 +351,18 @@
       setStatus('Manifest generálása folyamatban...');
 
       try {
+        const existingToken = (location.pathname.match(/^\/([^/]+)\/configure\/?$/) || [])[1] || "";
+        if (existingToken) {
+          latestManifestUrl = `${location.origin}/${existingToken}/manifest.json`;
+          manifestUrlEl.textContent = latestManifestUrl;
+          installLink.href = buildInstallUrl(latestManifestUrl);
+          openLink.href = latestManifestUrl;
+          manifestBox.hidden = false;
+          setStatus("Kész. A meglévő manifest URL maradt.", "ok");
+          setLoading(false);
+          return;
+        }
+
         const body = new URLSearchParams({ username, password, torboxApiKey });
         const response = await fetch(`${basePath}/api/config-token`, {
           method: 'POST',
