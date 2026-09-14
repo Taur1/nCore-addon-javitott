@@ -286,30 +286,6 @@ function createApp(deps = {}) {
       }
     }
 
-    // Tokenes configure oldal
-    const tokenConfigureM = path.match(/^\/([^/]+)\/configure\/?$/);
-    if (
-      (req.method === 'GET' || req.method === 'HEAD')
-      && tokenConfigureM
-    ) {
-      try {
-        decodeConfig(tokenConfigureM[1]);
-
-        if (req.method === 'HEAD') {
-          setCorsHeaders(res);
-          res.statusCode = 200;
-          res.setHeader('content-type', 'text/html; charset=utf-8');
-          return res.end();
-        }
-
-        return configureHtml
-          ? sendHtml(res, 200, configureHtml)
-          : sendHtml(res, 500, 'Missing configure.html');
-      } catch (e) {
-        return sendJson(res, 400, { error: e.message });
-      }
-    }
-
     // Setup manifest
     if ((req.method === 'GET' || req.method === 'HEAD') && path === '/manifest.json') {
       if (req.method === 'HEAD') {
@@ -379,13 +355,13 @@ function createApp(deps = {}) {
           return sendJson(res, 404, { error: 'Selection not found or expired' });
         }
 
-        let magnet = normalizeMagnet(sel.magnet);
+        let magnet = null;
         let infoHash = String(sel.infoHash || extractHash(magnet) || '').toLowerCase();
         let torrentFile = null;
         let torrentFileName = String(sel.fileName || '').trim() || null;
 
         // Fallback: when stream list could not build a magnet, fetch + parse torrent at resolve time.
-        if ((!magnet || !infoHash) && sel.downloadUrl) {
+        if (sel.downloadUrl) {
           try {
             torrentFile = await loginAndFetchTorrentFile({
               username: creds.username,
@@ -394,7 +370,7 @@ function createApp(deps = {}) {
             });
             const torrentMeta = parseTorrentMeta(torrentFile);
             infoHash = String(torrentMeta.infoHash || '').toLowerCase();
-            if (!magnet) magnet = torrentToMagnet(torrentMeta);
+            magnet = null;
             if (!torrentFileName) torrentFileName = torrentMeta.fileName || null;
           } catch (err) {
             debugErr('resolve-torrent-fallback-failed', { selKey, error: err?.message || String(err || '') });
@@ -485,7 +461,7 @@ function createApp(deps = {}) {
           if (entry?.expiresAt > Date.now()) {
             list = entry.list;
           } else {
-            list = await withTimeout(_getMyTorrents({ apiKey: creds.torboxApiKey }), 2000);
+            list = await withTimeout(_getMyTorrents({ apiKey: creds.torboxApiKey }), 8000);
             myListCache.set(key, { list, expiresAt: Date.now() + MYLIST_TTL });
           }
           for (const t of list || []) {
@@ -500,7 +476,11 @@ function createApp(deps = {}) {
             const hashes = results.slice(0, STREAM_RESULT_LIMIT)
               .map(r => String(r.infoHash || extractHash(normalizeMagnet(r.magnet)) || '').toLowerCase())
               .filter(Boolean);
-            console.error('[CACHE-DEBUG] checking', JSON.stringify({ count: hashes.length, hashes })); const cacheStart = Date.now(); cachedMap = await withTimeout(_checkCached({ apiKey: creds.torboxApiKey, infoHashes: hashes }), 1500); console.error('[CACHE-DEBUG] result', JSON.stringify({ ms: Date.now() - cacheStart, entries: [...cachedMap.entries()] }));
+            cachedMap = await withTimeout(
+              _checkCached({ apiKey: creds.torboxApiKey, infoHashes: hashes }),
+              8000
+            );
+            console.error("[TORBOX-CHECKCACHED-MAP]", JSON.stringify(Object.fromEntries(cachedMap)));
           } catch { /* ignore */ }
         }
 
@@ -513,8 +493,9 @@ function createApp(deps = {}) {
           if (!infoHash && !magnet && !downloadUrl) continue;
 
           const inMyList   = infoHash ? (myListByHash.get(infoHash) || null) : null;
-          const isReady    = inMyList ? isTorrentReady(inMyList) : false;
+          const isReady = inMyList ? isTorrentReady(inMyList) : false;
           const globalCached = infoHash ? (cachedMap.get(infoHash) ?? null) : null;
+
 
           // cached: true=kÄ‚Â©sz, false=tÄ‚Â¶ltÄąâ€dik vagy uncached, null=ismeretlen
           let cached;

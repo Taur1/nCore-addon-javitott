@@ -1,11 +1,3 @@
-test/api.test.js
-test_api_directly.js
-test_resolve_response.js
-test_torbox.js
-tmp.run.err.log
-tmp.run.out.log
-test/api.test.js
-test/api.test.js
-test/api.test.js
-.ncore-config-secret
 node_modules/
+.ncore-config-secret
+api/app.js.bak
