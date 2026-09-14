@@ -1,3 +1,4 @@
 node_modules/
 .ncore-config-secret
 api/app.js.bak
+.env
