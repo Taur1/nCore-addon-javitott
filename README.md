@@ -1,95 +1,114 @@
-# nCore web Stremio addon
+nCore Web Addon – Javított változat
+================================
 
-Web-based Stremio addon for nCore search + TorBox resolve (Node.js hosting, cPanel/CloudLinux).
+Ez a projekt a Thsandorh/nCore-addon repó forkja:
+https://github.com/Thsandorh/nCore-addon
 
-## Local run
+Az eredeti projekt nCore keresésre és TorBox alapú streamelésre készült Stremio addon. Ez a változat saját javításokat és módosításokat tartalmaz.
 
-```bash
-npm install
-npm start
-```
+FŐBB MÓDOSÍTÁSOK
+----------------
+- TorBox torrent-forwarding / resolve folyamat javítása.
+- TorBox globális cache ellenőrzésének javítása.
+- A TorBox cache találatok alapján a már elérhető torrentek előnyben részesítése.
+- Személyes konfiguráció kezelése tokenen keresztül.
+- A konfiguráció AES-256-GCM titkosítással, szerveroldali titkos kulccsal védett.
+- A személyes manifest URL tartalmazza a konfigurációhoz szükséges titkosított tokent.
+- A /<token>/configure útvonal támogatása, így egy már létrehozott konfiguráció szerkesztési oldala ugyanahhoz a manifesthez kapcsolódhat.
+- Docker és Docker Compose támogatás.
+- GHCR/Docker build workflow támogatás.
+- A konfigurációs secret külön környezeti változóban kezelhető.
+- A projekt verziója 1.3.
 
-Configure page: `http://localhost:3000/configure`
+SZÜKSÉGES
+---------
+- nCore fiók
+- TorBox fiók és API-kulcs
+- Docker + Docker Compose, ha konténerben futtatod
+- Saját szerver vagy VPS, amely folyamatosan elérhető
+- HTTPS ajánlott, különösen interneten keresztüli használatnál
 
-## Current behavior
+GYORS TELEPÍTÉS DOCKERREL
+-------------------------
+1. Klónozd a repót:
 
-- Streams come from nCore IMDb search.
-- For series (`tt...:season:episode`) filtering is strict:
-  - only torrents containing the requested episode are kept
-  - filtering is based on parsed video filenames from torrent metadata
-  - parser: `@ctrl/video-filename-parser`
-- Resolve flow is TorBox-style find-or-create.
+   git clone git@github.com:Taur1/nCore-addon-javitott.git
+   cd nCore-addon
 
-## cPanel / CloudLinux deploy
+2. Hozd létre a .env fájlt:
 
-- Application root: repository root (where `server.js` and `package.json` are)
-- Application URL: `/` or `/addon-path`
-- Application startup file: `server.js`
-- Node.js version: `14+` (example: `24`)
-- Environment variables:
-  - `APP_BASE_PATH` = empty for root URL, or `/addon-path` when using a subpath
-  - `PORT` = optional (usually set by hosting automatically)
-  - `TORBOX_DEBUG` = `true|false` (default: `true`)
-  - `ENABLE_STREAM_CACHE_PRECHECK` = `true|false` (default: `true`)
-  - `NCORE_RESULT_LIMIT` = max nCore rows before enrichment (default: `120`)
-  - `NCORE_META_CONCURRENCY` = parallel torrent metadata fetches (default: `6`)
+   NCORE_CONFIG_SECRET=IDE_EGY_HOSSZU_VELETLEN_TITKOS_KULCS
 
-After deploy:
-- Configure page: `https://<domain>/configure` or `https://<domain>/<addon-path>/configure`
-- Manifest: `https://<domain>/<token>/manifest.json` or `https://<domain>/<addon-path>/<token>/manifest.json`
+A secret legyen hosszú és véletlenszerű. Ne töltsd fel GitHubra.
 
-## Important
+3. Indítsd el:
 
-- `user:pass` data is tokenized into the URL.
-- The token is not encrypted (only base64url-encoded), so use it in a trusted environment.
-- If you run behind a reverse proxy/CDN, make sure encoded stream IDs are passed through unchanged.
+   docker compose up -d --build
 
+4. Ellenőrizd:
 
+   docker ps
+   curl http://127.0.0.1:3005/health
 
+Siker esetén:
 
-MÓDOSITOTT TELEPÍTÉS:
-1. Friss klónozás
-cd ~
-git clone git@github.com:Taur1/nCore-addon-javitott.git nCore-addon
-cd ~/nCore-addon
+   {"ok":true}
 
-git status
-git log --oneline -3
-git remote -v
+KONFIGURÁCIÓ
+------------
+Nyisd meg:
 
-A logban a legfelső commitnak ennek kell lennie:
+   https://SAJAT-DOMAIN/configure
 
-2e3342c Merge remote main with TorBox cache and token configure fixes
-2. Új secret generálása
-cd ~/nCore-addon
+Add meg:
+- nCore felhasználóneved
+- nCore jelszavad
+- TorBox API-kulcsod
 
-openssl rand -hex 32
+A rendszer létrehozza a személyes manifest URL-t. Ezt telepítsd Stremióba az „Install in Stremio” lehetőséggel, vagy add hozzá manuálisan.
 
-Másold ki a kapott 64 karakteres értéket, majd:
+FONTOS BIZTONSÁGI INFORMÁCIÓ
+----------------------------
+A konfigurációs adatok nem adatbázisban vannak tárolva.
 
-nano .env
+A konfiguráció AES-256-GCM titkosítással kerül tokenbe, a titkosításhoz pedig a szerver NCORE_CONFIG_SECRET értéke szükséges.
 
-Tartalma:
+A manifest URL személyes hozzáférési adatnak tekintendő. Ne oszd meg másokkal.
 
-NCORE_CONFIG_SECRET=IDE_JON_AZ_UJ_64_KARAKTERES_SECRET
+A .env és az NCORE_CONFIG_SECRET soha ne kerüljön GitHubra.
 
-Mentés: Ctrl+O, Enter, kilépés: Ctrl+X.
+REVERSE PROXY / DOMAIN
+----------------------
+Ha reverse proxy, Cloudflare Tunnel vagy más proxy mögött futtatod, az alkalmazás külső HTTPS URL-je legyen elérhető.
 
-Majd:
+Példa:
 
-chmod 600 .env
-3. Ellenőrizzük a Compose-t
-cat docker-compose.yml
+   https://ncore-addon.example.com/configure
 
-Ennek nagyjából ezt kell mutatnia:
+A Stremio számára generált manifest URL ugyanerről a domainről fog származni.
 
-services:
-  ncore-addon:
-    build: .
-    container_name: ncore-addon
-    ports:
-      - "3005:3000"
-    restart: unless-stopped
-    environment:
-      - TORBOX_DEBUG=true
-      - NCORE_CONFIG_SECRET=${NCORE_CONFIG_SECRET}
+PORT
+----
+A Docker Compose alapértelmezett beállítása:
+
+   3005:3000
+
+A szerver 3005-ös portja kerül továbbításra a konténer 3000-es portjára.
+
+VERZIÓ
+------
+Jelenlegi verzió: 1.3
+
+FORRÁS ÉS EREDET
+----------------
+Alap projekt:
+https://github.com/Thsandorh/nCore-addon
+
+Módosított fork:
+https://github.com/Taur1/nCore-addon-javitott
+
+A módosított változat fő célja a TorBox integráció, a cache-kezelés, a tokenes konfiguráció és a Dockeres telepítés javítása.
+
+MEGJEGYZÉS
+----------
+Az addon használatához érvényes nCore és TorBox hozzáférés szükséges. A projekt saját szerveren történő futtatásra készült.
