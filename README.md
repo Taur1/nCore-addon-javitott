@@ -21,7 +21,20 @@ FŐBB MÓDOSÍTÁSOK
 - Meglévő tokenes configure oldalról a meglévő manifest URL megtartása.
 - Docker és Docker Compose támogatás.
 - GHCR/Docker build workflow támogatás.
-- Jelenlegi verzió: 1.3.
+- IMDb keresési fallback: ha az IMDb-alapú nCore keresés nem ad találatot, a rendszer cím alapján keres.
+- IMDb cím fallback találatok szigorú cím szerinti szűrése, hogy a hasonló nevű, nem kapcsolódó torrentek ne jelenjenek meg.
+- Sorozatoknál javított évad/epizód felismerés olyan torrentfájlneveknél is, amelyekből hiányzik az S01/S02 jelölés, de a torrent címében szerepel.
+- A tokenes configure oldalon „Jelenlegi manifest másolása” gomb, amely az aktuális tokenhez tartozó manifest URL-t a vágólapra másolja.
+- A meglévő tokenes configure oldal továbbra is megtartja a meglévő manifest URL-t.
+- Jelenlegi verzió: 1.5.
+
+1.5-ÖS KIADÁS ÚJDONSÁGAI
+--------------------------
+- IMDb keresés után cím-alapú fallback, ha nincs IMDb-találat.
+- A fallback címkeresés eredményei relevancia alapján szűrve vannak.
+- Sorozatoknál javult az epizódkeresés season marker nélküli fájlneveknél.
+- A tokenes configure oldalon közvetlenül másolható az aktuális manifest URL.
+- Az addon verziója: 1.5.
 
 SZÜKSÉGES
 ---------
@@ -266,7 +279,7 @@ docker-compose.yml
 
 VERZIÓ
 ------
-1.3
+1.5
 
 EREDET
 ------
@@ -308,6 +321,19 @@ MAIN MODIFICATIONS
 - Docker and Docker Compose support.
 - GHCR/Docker build workflow support.
 - Server-side configuration secret is kept outside the Git repository.
+- IMDb title-search fallback when IMDb-based nCore search returns no results.
+- Strict title filtering for IMDb fallback results to prevent unrelated similarly named torrents from being returned.
+- Improved series season/episode matching for torrent filenames that do not contain S01/S02 season markers but whose torrent title contains the season information.
+- Added a "Copy current manifest" button to the token-specific configure page, allowing the current token's manifest URL to be copied directly to the clipboard.
+- Existing token-based configure pages continue to preserve their existing manifest URL.
+- Current addon version: 1.5.
+
+WHAT'S NEW IN 1.5
+------------------
+- IMDb title fallback when IMDb search returns no results.
+- Fallback title-search results are filtered for relevance.
+- Improved series episode matching for filenames without explicit season markers.
+- Added direct copying of the current manifest URL from the token-specific configure page.
 - Current addon version: 1.5.
 
 REQUIREMENTS
