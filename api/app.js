@@ -307,6 +307,17 @@ function createApp(deps = {}) {
       }
     }
 
+    // Token root -> manifest redirect
+    const tokenRootM = path.match(/^\/([^/]+)\/?$/);
+    if ((req.method === 'GET' || req.method === 'HEAD') && tokenRootM) {
+      try {
+        decodeConfig(tokenRootM[1]);
+        return sendRedirect(res, 302, `/${tokenRootM[1]}/manifest.json`);
+      } catch (e) {
+        return sendJson(res, 400, { error: e.message });
+      }
+    }
+
     // Setup manifest
     if ((req.method === 'GET' || req.method === 'HEAD') && path === '/manifest.json') {
       if (req.method === 'HEAD') {
