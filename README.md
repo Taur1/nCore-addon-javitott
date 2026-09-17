@@ -308,7 +308,7 @@ MAIN MODIFICATIONS
 - Docker and Docker Compose support.
 - GHCR/Docker build workflow support.
 - Server-side configuration secret is kept outside the Git repository.
-- Current addon version: 1.3.
+- Current addon version: 1.4.
 
 REQUIREMENTS
 ------------
@@ -555,7 +555,7 @@ Important files:
 
 VERSION
 -------
-Current addon version: 1.3
+Current addon version: 1.4
 
 ORIGINAL PROJECT / FORK
 -----------------------
