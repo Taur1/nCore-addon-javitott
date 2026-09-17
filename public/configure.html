@@ -255,6 +255,7 @@
             <a class="btn btn-primary" id="install-link" href="#" target="_self" rel="noopener">Install in Stremio</a>
             <a class="btn btn-ghost" id="open-link" href="#" target="_blank" rel="noopener">Manifest Megnyitása</a>
             <button class="btn btn-ghost" id="copy-btn" type="button">Másolás</button>
+            <button class="btn btn-ghost" id="copy-current-btn" type="button" hidden>Jelenlegi manifest másolása</button>
           </div>
         </div>
       </article>
@@ -279,6 +280,7 @@
     const installLink = document.getElementById('install-link');
     const openLink = document.getElementById('open-link');
     const copyBtn = document.getElementById('copy-btn');
+    const copyCurrentBtn = document.getElementById('copy-current-btn');
     const clearBtn = document.getElementById('clear-btn');
     const generateBtn = document.getElementById('generate-btn');
 
@@ -333,6 +335,27 @@
     });
 
     copyBtn.addEventListener('click', copyManifest);
+
+    async function copyCurrentManifest() {
+      const match = location.pathname.match(/^\/([^/]+)\/configure\/?$/);
+      if (!match) return;
+
+      const manifestUrl = `${location.origin}/${match[1]}/manifest.json`;
+
+      try {
+        await navigator.clipboard.writeText(manifestUrl);
+        setStatus('Jelenlegi manifest URL a vágólapra másolva.', 'ok');
+      } catch {
+        setStatus('Másolás sikertelen. Jelöld ki kézzel a manifest linket.', 'error');
+      }
+    }
+
+    copyCurrentBtn.addEventListener('click', copyCurrentManifest);
+
+    const currentToken = (location.pathname.match(/^\/([^/]+)\/configure\/?$/) || [])[1] || "";
+    if (currentToken) {
+      copyCurrentBtn.hidden = false;
+    }
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
