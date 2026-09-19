@@ -588,6 +588,32 @@ function createApp(deps = {}) {
           });
         }
 
+        streams.sort((a, b) => {
+          const getRanks = (stream) => {
+            const name = String(stream?.name || "");
+
+            let cacheRank = 2;
+            if (name.includes("[CACHED]")) cacheRank = 0;
+            else if (name.includes("[?]")) cacheRank = 1;
+
+            let qualityRank = 3;
+            if (name.includes("2160p")) qualityRank = 0;
+            else if (name.includes("1080p")) qualityRank = 1;
+            else if (name.includes("720p")) qualityRank = 2;
+
+            return { cacheRank, qualityRank };
+          };
+
+          const ra = getRanks(a);
+          const rb = getRanks(b);
+
+          if (ra.cacheRank !== rb.cacheRank) {
+            return ra.cacheRank - rb.cacheRank;
+          }
+
+          return ra.qualityRank - rb.qualityRank;
+        });
+
         streamListCache.set(streamCacheKey, {
           streams,
           expiresAt: Date.now() + STREAM_LIST_TTL_MS,
