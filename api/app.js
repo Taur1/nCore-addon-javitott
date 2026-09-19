@@ -30,7 +30,7 @@ const {  checkCached,
 
 const MANIFEST = {
   id: 'community.ncore.web',
-  version: '1.5',
+  version: '1.5.2',
   name: 'nCore Web Addon',
   description: 'nCore + TorBox stream addon',
   resources: ['stream'],
