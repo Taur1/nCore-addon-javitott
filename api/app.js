@@ -573,6 +573,7 @@ function createApp(deps = {}) {
           }
 
           streams.push({
+            _seeders: Number(item.seeders) || 0,
             name:  `nCore\nTorBox ${[tag, quality].filter(Boolean).join(' ')}`,
             title: [
               item.title,
@@ -591,17 +592,65 @@ function createApp(deps = {}) {
         streams.sort((a, b) => {
           const getRanks = (stream) => {
             const name = String(stream?.name || "");
+            const title = String(stream?.title || "").toUpperCase();
 
+            // 1. TorBox cache állapot
             let cacheRank = 2;
             if (name.includes("[CACHED]")) cacheRank = 0;
             else if (name.includes("[?]")) cacheRank = 1;
 
-            let qualityRank = 3;
-            if (name.includes("2160p")) qualityRank = 0;
-            else if (name.includes("1080p")) qualityRank = 1;
-            else if (name.includes("720p")) qualityRank = 2;
+            // 2. Felbontás
+            let resolutionRank = 3;
+            if (name.includes("2160p")) resolutionRank = 0;
+            else if (name.includes("1080p")) resolutionRank = 1;
+            else if (name.includes("720p")) resolutionRank = 2;
 
-            return { cacheRank, qualityRank };
+            // 3. Képminőség / HDR
+            let hdrRank = 5;
+            if (/DOLBY[ ._-]?VISION|\bDV\b/.test(title)) hdrRank = 0;
+            else if (/HDR10\+|HDR10PLUS/.test(title)) hdrRank = 1;
+            else if (/HDR10/.test(title)) hdrRank = 2;
+            else if (/\bHDR\b/.test(title)) hdrRank = 3;
+            else hdrRank = 4; // SDR
+
+            // 4. Forrás minősége
+            let sourceRank = 6;
+            if (/REMUX/.test(title)) sourceRank = 0;
+            else if (/BLU[ ._-]?RAY/.test(title)) sourceRank = 1;
+            else if (/WEB[ ._-]?DL|WEBDL/.test(title)) sourceRank = 2;
+            else if (/WEB[ ._-]?RIP|WEBRIP/.test(title)) sourceRank = 3;
+            else if (/HDTV/.test(title)) sourceRank = 4;
+            else if (/\b(CAM|CAMRIP|TS|TELESYNC)\b/.test(title)) sourceRank = 5;
+
+            // 5. Videocodec
+            let codecRank = 5;
+            if (/HEVC|H265|H\.265/.test(title)) codecRank = 0;
+            else if (/AV1/.test(title)) codecRank = 1;
+            else if (/H264|H\.264|AVC/.test(title)) codecRank = 2;
+            else if (/XVID|DIVX/.test(title)) codecRank = 3;
+
+            // 6. Hangminőség
+            let audioRank = 8;
+            if (/ATMOS/.test(title)) audioRank = 0;
+            else if (/DTS[ ._-]?HD[ ._-]?MA/.test(title)) audioRank = 1;
+            else if (/TRUEHD/.test(title)) audioRank = 2;
+            else if (/DTS/.test(title)) audioRank = 3;
+            else if (/EAC3|DDP|DD\+/.test(title)) audioRank = 4;
+            else if (/AC3|DD/.test(title)) audioRank = 5;
+            else if (/AAC/.test(title)) audioRank = 6;
+
+            // 7. Seeders – csak végső döntő szempont
+            const seeders = Number(stream?._seeders) || 0;
+
+            return {
+              cacheRank,
+              resolutionRank,
+              hdrRank,
+              sourceRank,
+              codecRank,
+              audioRank,
+              seeders,
+            };
           };
 
           const ra = getRanks(a);
@@ -611,7 +660,27 @@ function createApp(deps = {}) {
             return ra.cacheRank - rb.cacheRank;
           }
 
-          return ra.qualityRank - rb.qualityRank;
+          if (ra.resolutionRank !== rb.resolutionRank) {
+            return ra.resolutionRank - rb.resolutionRank;
+          }
+
+          if (ra.hdrRank !== rb.hdrRank) {
+            return ra.hdrRank - rb.hdrRank;
+          }
+
+          if (ra.sourceRank !== rb.sourceRank) {
+            return ra.sourceRank - rb.sourceRank;
+          }
+
+          if (ra.codecRank !== rb.codecRank) {
+            return ra.codecRank - rb.codecRank;
+          }
+
+          if (ra.audioRank !== rb.audioRank) {
+            return ra.audioRank - rb.audioRank;
+          }
+
+          return rb.seeders - ra.seeders;
         });
 
         streamListCache.set(streamCacheKey, {
