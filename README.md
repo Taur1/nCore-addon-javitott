@@ -26,15 +26,21 @@ FŐBB MÓDOSÍTÁSOK
 - Sorozatoknál javított évad/epizód felismerés olyan torrentfájlneveknél is, amelyekből hiányzik az S01/S02 jelölés, de a torrent címében szerepel.
 - A tokenes configure oldalon „Jelenlegi manifest másolása” gomb, amely az aktuális tokenhez tartozó manifest URL-t a vágólapra másolja.
 - A meglévő tokenes configure oldal továbbra is megtartja a meglévő manifest URL-t.
-- Jelenlegi verzió: 1.5.
+- Jelenlegi verzió: 1.5.2.
 
-1.5-ÖS KIADÁS ÚJDONSÁGAI
+1.5.2-ES KIADÁS ÚJDONSÁGAI
 --------------------------
 - IMDb keresés után cím-alapú fallback, ha nincs IMDb-találat.
-- A fallback címkeresés eredményei relevancia alapján szűrve vannak.
-- Sorozatoknál javult az epizódkeresés season marker nélküli fájlneveknél.
+- A fallback címkeresés eredményei szigorúan relevancia alapján szűrve vannak.
+- Sorozatoknál javult az évad/epizód felismerés season marker nélküli fájlneveknél.
 - A tokenes configure oldalon közvetlenül másolható az aktuális manifest URL.
-- Az addon verziója: 1.5.
+- A TorBox által cache-elt streamek prioritást kapnak.
+- Azonos cache állapot mellett a magasabb felbontás kerül előre: 2160p → 1080p → 720p.
+- Azonos felbontáson belül a stream minőségi tulajdonságai alapján történik a rendezés.
+- A Dolby Vision, HDR10+, HDR10 és HDR formátumok külön prioritást kapnak.
+- A forrásminőség, videocodec és hangminőség is bekerül a rendezésbe.
+- A seederek száma csak végső döntő szempontként szerepel.
+- Az addon verziója: 1.5.2.
 
 SZÜKSÉGES
 ---------
@@ -156,6 +162,34 @@ A torrentadatokból többek között használhatók:
 - freeleech információ
 
 Az addon torrent metaadatot is feldolgozhat, és szükség esetén a torrentfájlt használja.
+
+STREAM MINŐSÉGI RENDEZÉS
+------------------------
+A találatok rendezése nem a seederek számát tekinti elsődleges szempontnak.
+
+Prioritási sorrend:
+
+    1. TorBox cache állapot
+    2. Felbontás
+    3. HDR / Dolby Vision
+    4. Forrás minősége
+    5. Videocodec
+    6. Hangminőség
+    7. Seederek (csak végső döntő szempont)
+
+Felbontás:
+
+    2160p → 1080p → 720p
+
+Képminőség:
+
+    Dolby Vision → HDR10+ → HDR10 → HDR → SDR
+
+Forrás:
+
+    BluRay REMUX → BluRay → WEB-DL → WEBRip → HDTV → CAM/TS
+
+A cél, hogy az azonos cache- és felbontási kategórián belül a jobb minőségű release-ek kerüljenek előre, és csak az egyébként hasonló találatok között döntsön a seederek száma.
 
 SOROZAT / EPIZÓD SZŰRÉS
 -----------------------
@@ -326,15 +360,21 @@ MAIN MODIFICATIONS
 - Improved series season/episode matching for torrent filenames that do not contain S01/S02 season markers but whose torrent title contains the season information.
 - Added a "Copy current manifest" button to the token-specific configure page, allowing the current token's manifest URL to be copied directly to the clipboard.
 - Existing token-based configure pages continue to preserve their existing manifest URL.
-- Current addon version: 1.5.
+- Current addon version: 1.5.2.
 
-WHAT'S NEW IN 1.5
-------------------
+WHAT'S NEW IN 1.5.2
+--------------------
 - IMDb title fallback when IMDb search returns no results.
-- Fallback title-search results are filtered for relevance.
-- Improved series episode matching for filenames without explicit season markers.
+- Fallback title-search results are strictly filtered for relevance.
+- Improved series season/episode matching for filenames without explicit season markers.
 - Added direct copying of the current manifest URL from the token-specific configure page.
-- Current addon version: 1.5.
+- TorBox cached streams are prioritized.
+- Higher resolutions are prioritized within the same cache state: 2160p → 1080p → 720p.
+- Streams with the same cache state and resolution are ranked by quality characteristics.
+- Dolby Vision, HDR10+, HDR10 and HDR receive separate quality priorities.
+- Source quality, video codec and audio quality are also considered.
+- Seeder count is used only as a final tie-breaker.
+- Current addon version: 1.5.2.
 
 REQUIREMENTS
 ------------
@@ -454,6 +494,34 @@ Torrent data may include:
 - freeleech information
 
 The addon can process torrent metadata and use torrent files when needed.
+
+STREAM QUALITY SORTING
+----------------------
+Stream ordering does not treat seeder count as the primary quality indicator.
+
+Priority order:
+
+    1. TorBox cache status
+    2. Resolution
+    3. HDR / Dolby Vision
+    4. Source quality
+    5. Video codec
+    6. Audio quality
+    7. Seeders (final tie-breaker only)
+
+Resolution:
+
+    2160p → 1080p → 720p
+
+Picture quality:
+
+    Dolby Vision → HDR10+ → HDR10 → HDR → SDR
+
+Source quality:
+
+    BluRay REMUX → BluRay → WEB-DL → WEBRip → HDTV → CAM/TS
+
+The goal is to place higher-quality releases first within the same cache and resolution category, using seeder count only when otherwise comparable results need to be ordered.
 
 SERIES / EPISODE FILTERING
 --------------------------
