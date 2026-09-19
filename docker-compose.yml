@@ -5,6 +5,8 @@ services:
     ports:
       - "3005:3000"
     restart: unless-stopped
+    labels:
+      cosmos-icon: "${COSMOS_ICON_URL}"
     environment:
       - TORBOX_DEBUG=true
       - NCORE_CONFIG_SECRET=${NCORE_CONFIG_SECRET}

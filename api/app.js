@@ -1,4 +1,4 @@
-﻿'use strict';
+'use strict';
 
 const crypto = require('node:crypto');
 const { encodeConfig, decodeConfig } = require('../lib/config');
@@ -223,6 +223,7 @@ function createApp(deps = {}) {
   const _getMyTorrents = deps.torboxMyListFetcher  || getMyTorrents;
   const _resolveLink   = deps.torboxResolver       || resolveLink;
   const configureHtml  = deps.configureHtml;
+  const logoBuffer     = deps.logoBuffer;
 
   return async function app(req, res) {
     pruneCache();
@@ -254,6 +255,26 @@ function createApp(deps = {}) {
     ) {
       const basePath = parseBasePath(process.env.APP_BASE_PATH || '');
       return sendRedirect(res, 302, `${basePath}/configure${url.search || ''}`);
+    }
+
+    // Project logo
+    if ((req.method === 'GET' || req.method === 'HEAD') && path === '/logo.png') {
+      if (!logoBuffer) {
+        res.statusCode = 404;
+        res.setHeader('content-type', 'text/plain; charset=utf-8');
+        return res.end('Logo not found');
+      }
+
+      setCorsHeaders(res);
+      res.statusCode = 200;
+      res.setHeader('content-type', 'image/png');
+      res.setHeader('cache-control', 'public, max-age=86400');
+
+      if (req.method === 'HEAD') {
+        return res.end();
+      }
+
+      return res.end(logoBuffer);
     }
 
     // Configure oldal
@@ -308,7 +329,7 @@ function createApp(deps = {}) {
     }
 
     // Token root -> manifest redirect
-    const tokenRootM = path.match(/^\/([^/]+)\/?$/);
+    const tokenRootM = path.match(/^\/(?!manifest\.json$)([^/]+)\/?$/);
     if ((req.method === 'GET' || req.method === 'HEAD') && tokenRootM) {
       try {
         decodeConfig(tokenRootM[1]);
@@ -326,8 +347,13 @@ function createApp(deps = {}) {
         res.setHeader('cache-control', 'public, max-age=60');
         return res.end();
       }
+      const origin = getOrigin(req);
+      const basePath = parseBasePath(process.env.APP_BASE_PATH || '');
       res.setHeader('cache-control', 'public, max-age=60');
-      return sendJson(res, 200, SETUP_MANIFEST);
+      return sendJson(res, 200, {
+        ...SETUP_MANIFEST,
+        logo: `${origin}${basePath}/logo.png`,
+      });
     }
 
     // KonfigurÄ‚Ë‡lt manifest
@@ -342,8 +368,14 @@ function createApp(deps = {}) {
           return res.end();
         }
         const suffix = crypto.createHash('sha1').update(manifestM[1]).digest('hex').slice(0, 12);
+        const origin = getOrigin(req);
+        const basePath = parseBasePath(process.env.APP_BASE_PATH || '');
         res.setHeader('cache-control', 'public, max-age=60');
-        return sendJson(res, 200, { ...MANIFEST, id: `community.ncore.web.${suffix}` });
+        return sendJson(res, 200, {
+          ...MANIFEST,
+          logo: `${origin}${basePath}/logo.png`,
+          id: `community.ncore.web.${suffix}`,
+        });
       } catch (e) {
         return sendJson(res, 400, { error: e.message });
       }
@@ -529,10 +561,10 @@ function createApp(deps = {}) {
           const globalCached = infoHash ? (cachedMap.get(infoHash) ?? null) : null;
 
 
-          // cached: true=kÄ‚Â©sz, false=tÄ‚Â¶ltÄąâ€dik vagy uncached, null=ismeretlen
+          // cached: true=kÄ‚Â©sz, false=tÄ‚Â¶ltÄąâ€�dik vagy uncached, null=ismeretlen
           let cached;
           if (isReady)                   cached = true;
-          else if (inMyList)             cached = false;  // listÄ‚Ë‡ban van de tÄ‚Â¶ltÄąâ€dik
+          else if (inMyList)             cached = false;  // listÄ‚Ë‡ban van de tÄ‚Â¶ltÄąâ€�dik
           else if (globalCached != null) cached = globalCached;
           else                           cached = null;
 
@@ -701,6 +733,5 @@ function createApp(deps = {}) {
 }
 
 module.exports = { createApp, manifestTemplate: MANIFEST };
-
 
 
