@@ -64,6 +64,21 @@ const configureHtml = fs.existsSync(configurePath)
   : '<h1>Missing configure page</h1>';
 
 // ---------------------------------------------------------------------------
+// Admin page
+// ---------------------------------------------------------------------------
+
+const adminPath = path.join(
+  __dirname,
+  'public',
+  'admin.html'
+);
+
+const adminHtml = fs.existsSync(adminPath)
+  ? fs.readFileSync(adminPath, 'utf8')
+  : '<h1>Missing admin page</h1>';
+
+
+// ---------------------------------------------------------------------------
 // Project logo
 // ---------------------------------------------------------------------------
 
@@ -91,6 +106,7 @@ const basePath = normalizeBasePath(process.env.APP_BASE_PATH);
 
 const app = createApp({
   configureHtml,
+  adminHtml,
   logoBuffer,
 });
 

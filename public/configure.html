@@ -22,8 +22,15 @@
       --radius-md: 14px;
     }
 
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
     body {
       margin: 0;
       color: var(--text);
@@ -92,7 +99,9 @@
       margin-bottom: 12px;
     }
 
-    .field:last-child { margin-bottom: 0; }
+    .field:last-child {
+      margin-bottom: 0;
+    }
 
     .label {
       font-size: 13px;
@@ -114,11 +123,54 @@
       transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
     }
 
-    input::placeholder { color: #7f91a8; }
+    input::placeholder {
+      color: #7f91a8;
+    }
+
     input:focus {
       border-color: rgba(52, 211, 153, 0.75);
       box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.16);
       transform: translateY(-1px);
+    }
+
+    .seed-options {
+      display: grid;
+      gap: 8px;
+    }
+
+    .seed-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 13px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: var(--radius-md);
+      background: rgba(7, 11, 16, 0.5);
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .seed-option:hover {
+      border-color: rgba(52, 211, 153, 0.45);
+      background: rgba(52, 211, 153, 0.06);
+    }
+
+    .seed-option input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      padding: 0;
+      accent-color: var(--accent);
+      transform: none;
+      box-shadow: none;
+    }
+
+    .seed-description {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
     }
 
     .actions {
@@ -143,7 +195,9 @@
       line-height: 1;
     }
 
-    .btn:active { transform: translateY(1px); }
+    .btn:active {
+      transform: translateY(1px);
+    }
 
     .btn-primary {
       color: #032018;
@@ -151,7 +205,9 @@
       min-width: 170px;
     }
 
-    .btn-primary:hover { filter: brightness(1.06); }
+    .btn-primary:hover {
+      filter: brightness(1.06);
+    }
 
     .btn-ghost {
       color: var(--text);
@@ -159,7 +215,9 @@
       border-color: rgba(255, 255, 255, 0.2);
     }
 
-    .btn-ghost:hover { border-color: rgba(255, 255, 255, 0.38); }
+    .btn-ghost:hover {
+      border-color: rgba(255, 255, 255, 0.38);
+    }
 
     .helper {
       margin: 10px 0 0;
@@ -175,8 +233,13 @@
       font-size: 13px;
     }
 
-    .status.error { color: var(--danger); }
-    .status.ok { color: #86efac; }
+    .status.error {
+      color: var(--danger);
+    }
+
+    .status.ok {
+      color: #86efac;
+    }
 
     .manifest {
       margin-top: 14px;
@@ -207,13 +270,280 @@
     }
 
     @media (max-width: 560px) {
-      body { padding: 16px 12px 24px; }
-      .hero, .card { padding: 16px; }
-      .actions .btn { width: 100%; }
+      body {
+        padding: 16px 12px 24px;
+      }
+
+      .hero,
+      .card {
+        padding: 16px;
+      }
+
+      .actions .btn {
+        width: 100%;
+      }
     }
+
+    /* ==========================================================
+       nCore modern navigation / branding
+       ========================================================== */
+
+    .topbar {
+      width: min(1180px, 100%);
+      margin: 0 auto 18px;
+      padding: 14px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      background: rgba(14, 20, 29, 0.82);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 18px 45px rgba(4, 8, 18, 0.32);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      position: relative;
+      z-index: 5;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+      flex: 0 0 auto;
+      border-radius: 10px;
+    }
+
+    .brand-text {
+      min-width: 0;
+    }
+
+    .brand-name {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.025em;
+      color: #f4f8ff;
+    }
+
+    .brand-red {
+      color: #ef4444;
+    }
+
+    .brand-subtitle {
+      margin-top: 5px;
+      color: #8fa2ba;
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .admin-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 42px;
+      padding: 9px 14px;
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      border-radius: 11px;
+      background: rgba(37, 55, 79, 0.55);
+      color: #dcecff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+      transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+    }
+
+    .admin-button:hover {
+      background: rgba(59, 89, 126, 0.7);
+      border-color: rgba(96, 165, 250, 0.65);
+      transform: translateY(-1px);
+    }
+
+    .admin-icon {
+      font-size: 17px;
+      color: #7db7ff;
+    }
+
+    .external-icon {
+      color: #8ea8c5;
+      font-size: 15px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 180px;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: -100px;
+      top: -120px;
+      border-radius: 50%;
+      background: rgba(52, 211, 153, 0.08);
+      pointer-events: none;
+    }
+
+    .hero > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .title {
+      max-width: 850px;
+    }
+
+    .subtitle {
+      max-width: 820px;
+    }
+
+    .grid {
+      align-items: start;
+    }
+
+    .card {
+      transition:
+        border-color 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .card h2 {
+      font-size: 21px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .seed-option {
+      min-height: 52px;
+    }
+
+    .manifest {
+      border-color: rgba(52, 211, 153, 0.22);
+      background:
+        linear-gradient(
+          145deg,
+          rgba(8, 20, 22, 0.9),
+          rgba(8, 13, 19, 0.9)
+        );
+    }
+
+    .status.ok {
+      padding: 9px 11px;
+      border-radius: 9px;
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.16);
+    }
+
+    .status.error {
+      padding: 9px 11px;
+      border-radius: 9px;
+      background: rgba(244, 63, 94, 0.08);
+      border: 1px solid rgba(244, 63, 94, 0.16);
+    }
+
+    @media (min-width: 880px) {
+      body {
+        padding-top: 24px;
+      }
+
+      .wrap {
+        width: min(1180px, 100%);
+      }
+
+      .hero {
+        padding: 28px;
+      }
+
+      .grid {
+        grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
+      }
+
+      .grid > .card:first-child {
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .topbar {
+        padding: 12px;
+        border-radius: 14px;
+      }
+
+      .brand-subtitle {
+        display: none;
+      }
+
+      .brand-name {
+        font-size: 21px;
+      }
+
+      .brand-logo {
+        width: 40px;
+        height: 40px;
+      }
+
+      .admin-button {
+        padding: 9px 11px;
+      }
+
+      .admin-button span:not(.admin-icon):not(.external-icon) {
+        display: none;
+      }
+    }
+
   </style>
 </head>
+
 <body>
+
+  <header class="topbar">
+    <div class="brand">
+      <img src="/logo.png" alt="nCore logo" class="brand-logo">
+      <div class="brand-text">
+        <div class="brand-name">
+          <span class="brand-red">n</span>Core
+        </div>
+        <div class="brand-subtitle">
+          Stremio Addon · TorBox Integration
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <a class="admin-button" id="admin-link" href="/admin">
+        <span class="admin-icon">▥</span>
+        <span>Admin panel</span>
+        <span class="external-icon">↗</span>
+      </a>
+    </div>
+  </header>
+
   <main class="wrap">
     <section class="hero">
       <h1 class="title">nCore + TorBox for Stremio</h1>
@@ -226,48 +556,143 @@
     <section class="grid">
       <article class="card">
         <h2>Beállítás</h2>
+
         <form id="config-form" novalidate>
           <div class="field">
             <label class="label" for="username">nCore Username</label>
-            <input id="username" name="username" type="text" placeholder="pl. felhasznalo123" autocomplete="username" required />
+            <input
+              id="username"
+              name="username"
+              type="text"
+              placeholder="pl. felhasznalo123"
+              autocomplete="username"
+              required
+            />
           </div>
+
           <div class="field">
             <label class="label" for="password">nCore Password</label>
-            <input id="password" name="password" type="password" placeholder="nCore jelszó" autocomplete="current-password" required />
+            <input
+              id="password"
+              name="password"
+              type="password"
+              placeholder="nCore jelszó"
+              autocomplete="current-password"
+              required
+            />
           </div>
+
           <div class="field">
             <label class="label" for="torboxApiKey">TorBox API Key</label>
-            <input id="torboxApiKey" name="torboxApiKey" type="password" placeholder="tb_..." autocomplete="off" required />
+            <input
+              id="torboxApiKey"
+              name="torboxApiKey"
+              type="password"
+              placeholder="tb_..."
+              autocomplete="off"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label class="label">TorBox seedelés</label>
+
+            <div class="seed-options">
+              <label class="seed-option">
+                <input
+                  type="radio"
+                  name="seedEnabled"
+                  value="false"
+                  checked
+                />
+                <span>
+                  <strong>Nem, ne seedeljen</strong>
+                </span>
+              </label>
+
+              <label class="seed-option">
+                <input
+                  type="radio"
+                  name="seedEnabled"
+                  value="true"
+                />
+                <span>
+                  <strong>Igen, seedeljen</strong>
+                </span>
+              </label>
+            </div>
+
+            <div class="seed-description">
+              A választás ehhez a személyes manifesthez kerül mentésre.
+            </div>
           </div>
 
           <div class="actions">
-            <button class="btn btn-primary" id="generate-btn" type="submit">Manifest Generálás</button>
-            <button class="btn btn-ghost" id="clear-btn" type="button">Mezők Törlése</button>
-            <button class="btn btn-ghost" id="copy-current-btn" type="button">Jelenlegi manifest másolása</button>
+            <button class="btn btn-primary" id="generate-btn" type="submit">
+              Manifest Generálás
+            </button>
+
+            <button class="btn btn-ghost" id="clear-btn" type="button">
+              Mezők Törlése
+            </button>
+
+            <button class="btn btn-ghost" id="copy-current-btn" type="button">
+              Jelenlegi manifest másolása
+            </button>
           </div>
-          <p class="helper">A megadott nCore és TorBox adatok nem kerülnek adatbázisba. A konfiguráció AES-256-GCM titkosítással, szerveroldali titkos kulccsal védett tokenben kerül tárolásra, amely a személyes manifest URL része.</p>
+
+          <p class="helper">
+            Az nCore jelszó és a TorBox API-kulcs nem kerül az adminisztrációs adatbázisba.
+            A konfiguráció AES-256-GCM titkosítással, szerveroldali titkos kulccsal
+            védett tokenben kerül tárolásra, amely a személyes manifest URL része.
+            Az adminisztrációs adatbázis a manifesthez kapcsolódó metaadatokat és használati adatokat tárolja.
+          </p>
+
           <div class="status" id="status"></div>
         </form>
 
         <div class="manifest" id="manifest-box" hidden>
           <strong>Manifest URL</strong>
+
           <div id="manifest-url"></div>
+
           <div class="actions" style="margin-top: 12px;">
-            <a class="btn btn-primary" id="install-link" href="#" target="_self" rel="noopener">Install in Stremio</a>
-            <a class="btn btn-ghost" id="open-link" href="#" target="_blank" rel="noopener">Manifest Megnyitása</a>
-            <button class="btn btn-ghost" id="copy-btn" type="button">Másolás</button>
-            
+            <a
+              class="btn btn-primary"
+              id="install-link"
+              href="#"
+              target="_self"
+              rel="noopener"
+            >
+              Install in Stremio
+            </a>
+
+            <a
+              class="btn btn-ghost"
+              id="open-link"
+              href="#"
+              target="_blank"
+              rel="noopener"
+            >
+              Manifest Megnyitása
+            </a>
+
+            <button class="btn btn-ghost" id="copy-btn" type="button">
+              Másolás
+            </button>
           </div>
         </div>
       </article>
 
       <article class="card">
         <h2>Használat</h2>
+
         <ol class="steps">
-          <li>Töltsd ki az adatokat és generáld a manifestet.</li>
+          <li>Töltsd ki az nCore és TorBox adatokat, majd generáld a manifestet.</li>
+          <li>Válaszd ki, hogy szeretnél-e TorBox seedelést.</li>
           <li>Nyomj az <strong>Install in Stremio</strong> gombra.</li>
-          <li>Ha frissítesz szervert, addon reinstall javasolt (cache miatt).</li>
-          <li>Ha nincs stream: ellenőrizd a TorBox API kulcsot és az nCore bejelentkezést.</li>
+          <li>Ha frissíted a szervert, az addon újratelepítése javasolt a Stremio gyorsítótára miatt.</li>
+          <li>Ha nincs stream, ellenőrizd az nCore bejelentkezési adatokat, a TorBox API-kulcsot, valamint hogy az adott tartalomhoz található-e megfelelő nCore találat.</li>
         </ol>
       </article>
     </section>
@@ -285,7 +710,20 @@
     const clearBtn = document.getElementById('clear-btn');
     const generateBtn = document.getElementById('generate-btn');
 
-    const basePath = /^\/[^/]+\/configure\/?$/.test(location.pathname) ? "" : location.pathname.replace(/\/configure\/?$/, "").replace(/\/$/, "");
+    const basePath = /^\/[^/]+\/configure\/?$/.test(location.pathname)
+      ? ""
+      : location.pathname
+          .replace(/\/configure\/?$/, "")
+          .replace(/\/$/, "");
+
+    const adminLink =
+      document.getElementById('admin-link');
+
+    if (adminLink) {
+      adminLink.href =
+        `${basePath}/admin`;
+    }
+
     let latestManifestUrl = '';
 
     function setStatus(message, kind) {
@@ -295,7 +733,9 @@
 
     function setLoading(loading) {
       generateBtn.disabled = loading;
-      generateBtn.textContent = loading ? 'Generálás...' : 'Manifest Generálás';
+      generateBtn.textContent = loading
+        ? 'Generálás...'
+        : 'Manifest Generálás';
     }
 
     function buildInstallUrl(manifestUrl) {
@@ -305,26 +745,37 @@
     async function parseJsonResponse(response, fallbackMessage) {
       const raw = await response.text();
       let data = null;
+
       try {
         data = raw ? JSON.parse(raw) : {};
       } catch {
         const snippet = String(raw || '').trim().slice(0, 120);
         const preview = snippet ? ` (${snippet})` : '';
-        throw new Error(`${fallbackMessage} [HTTP ${response.status}]${preview}`);
+        throw new Error(
+          `${fallbackMessage} [HTTP ${response.status}]${preview}`
+        );
       }
+
       if (!response.ok) {
-        throw new Error(data?.error || `${fallbackMessage} [HTTP ${response.status}]`);
+        throw new Error(
+          data?.error || `${fallbackMessage} [HTTP ${response.status}]`
+        );
       }
+
       return data;
     }
 
     async function copyManifest() {
       if (!latestManifestUrl) return;
+
       try {
         await navigator.clipboard.writeText(latestManifestUrl);
         setStatus('Manifest URL a vágólapra másolva.', 'ok');
       } catch {
-        setStatus('Másolás sikertelen. Jelöld ki kézzel a linket.', 'error');
+        setStatus(
+          'Másolás sikertelen. Jelöld ki kézzel a linket.',
+          'error'
+        );
       }
     }
 
@@ -338,22 +789,39 @@
     copyBtn.addEventListener('click', copyManifest);
 
     async function copyCurrentManifest() {
-      const match = location.pathname.match(/^\/([^/]+)\/configure\/?$/);
+      const match = location.pathname.match(
+        /^\/([^/]+)\/configure\/?$/
+      );
+
       if (!match) return;
 
-      const manifestUrl = `${location.origin}/${match[1]}/manifest.json`;
+      const manifestUrl =
+        `${location.origin}/${match[1]}/manifest.json`;
 
       try {
         await navigator.clipboard.writeText(manifestUrl);
-        setStatus('Jelenlegi manifest URL a vágólapra másolva.', 'ok');
+        setStatus(
+          'Jelenlegi manifest URL a vágólapra másolva.',
+          'ok'
+        );
       } catch {
-        setStatus('Másolás sikertelen. Jelöld ki kézzel a manifest linket.', 'error');
+        setStatus(
+          'Másolás sikertelen. Jelöld ki kézzel a manifest linket.',
+          'error'
+        );
       }
     }
 
-    copyCurrentBtn.addEventListener('click', copyCurrentManifest);
+    copyCurrentBtn.addEventListener(
+      'click',
+      copyCurrentManifest
+    );
 
-    const currentToken = (location.pathname.match(/^\/([^/]+)\/configure\/?$/) || [])[1] || "";
+    const currentToken =
+      (location.pathname.match(
+        /^\/([^/]+)\/configure\/?$/
+      ) || [])[1] || "";
+
     if (currentToken) {
       copyCurrentBtn.hidden = false;
     }
@@ -362,9 +830,18 @@
       event.preventDefault();
 
       const formData = new FormData(form);
-      const username = String(formData.get('username') || '').trim();
-      const password = String(formData.get('password') || '').trim();
-      const torboxApiKey = String(formData.get('torboxApiKey') || '').trim();
+
+      const username =
+        String(formData.get('username') || '').trim();
+
+      const password =
+        String(formData.get('password') || '').trim();
+
+      const torboxApiKey =
+        String(formData.get('torboxApiKey') || '').trim();
+
+      const seedEnabled =
+        formData.get('seedEnabled') === 'true';
 
       if (!username || !password || !torboxApiKey) {
         setStatus('Minden mező kötelező.', 'error');
@@ -375,34 +852,70 @@
       setStatus('Manifest generálása folyamatban...');
 
       try {
-        const existingToken = (location.pathname.match(/^\/([^/]+)\/configure\/?$/) || [])[1] || "";
+        const existingToken =
+          (location.pathname.match(
+            /^\/([^/]+)\/configure\/?$/
+          ) || [])[1] || "";
+
         if (existingToken) {
-          latestManifestUrl = `${location.origin}/${existingToken}/manifest.json`;
+          latestManifestUrl =
+            `${location.origin}/${existingToken}/manifest.json`;
+
           manifestUrlEl.textContent = latestManifestUrl;
           installLink.href = buildInstallUrl(latestManifestUrl);
           openLink.href = latestManifestUrl;
           manifestBox.hidden = false;
-          setStatus("Kész. A meglévő manifest URL maradt.", "ok");
+
+          setStatus(
+            "Kész. A meglévő manifest URL maradt.",
+            "ok"
+          );
+
           setLoading(false);
           return;
         }
 
-        const body = new URLSearchParams({ username, password, torboxApiKey });
-        const response = await fetch(`${basePath}/api/config-token`, {
-          method: 'POST',
-          headers: { 'content-type': 'application/x-www-form-urlencoded' },
-          body,
+        const body = new URLSearchParams({
+          username,
+          password,
+          torboxApiKey,
+          seedEnabled: String(seedEnabled),
         });
-        const data = await parseJsonResponse(response, 'Manifest generálás sikertelen.');
 
-        latestManifestUrl = `${location.origin}${basePath}/${data.token}/manifest.json`;
+        const response = await fetch(
+          `${basePath}/api/config-token`,
+          {
+            method: 'POST',
+            headers: {
+              'content-type':
+                'application/x-www-form-urlencoded'
+            },
+            body,
+          }
+        );
+
+        const data = await parseJsonResponse(
+          response,
+          'Manifest generálás sikertelen.'
+        );
+
+        latestManifestUrl =
+          `${location.origin}${basePath}/${data.token}/manifest.json`;
+
         manifestUrlEl.textContent = latestManifestUrl;
         installLink.href = buildInstallUrl(latestManifestUrl);
         openLink.href = latestManifestUrl;
         manifestBox.hidden = false;
-        setStatus('Kész. Telepítheted az addont Stremióba.', 'ok');
+
+        setStatus(
+          'Kész. Telepítheted az addont Stremióba.',
+          'ok'
+        );
       } catch (error) {
-        setStatus(error.message || 'Ismeretlen hiba történt.', 'error');
+        setStatus(
+          error.message || 'Ismeretlen hiba történt.',
+          'error'
+        );
       } finally {
         setLoading(false);
       }

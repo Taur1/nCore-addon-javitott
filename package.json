@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ctrl/video-filename-parser": "^5.0.0",
+    "better-sqlite3": "^13.0.3",
     "undici": "^5.28.4"
   },
   "engines": {
