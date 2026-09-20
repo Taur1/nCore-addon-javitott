@@ -26,22 +26,35 @@ FŐBB MÓDOSÍTÁSOK
 - Sorozatoknál javított évad/epizód felismerés olyan torrentfájlneveknél is, amelyekből hiányzik az S01/S02 jelölés, de a torrent címében szerepel.
 - A tokenes configure oldalon „Jelenlegi manifest másolása” gomb, amely az aktuális tokenhez tartozó manifest URL-t a vágólapra másolja.
 - A meglévő tokenes configure oldal továbbra is megtartja a meglévő manifest URL-t.
-- Jelenlegi verzió: 1.5.2.
+- Új adminisztrációs panel Basic Auth védelemmel.
+- Manifestenkénti használati statisztikák és használati előzmények.
+- Manifestek aktiválása, deaktiválása és törlése.
+- SQLite alapú adminisztrációs adatbázis.
+- TorBox seedelés ki- és bekapcsolható személyes manifestenként.
+- A seedelési állapot az admin panelen is megjelenik.
+- Az admin adatbázis nem tárolja az nCore jelszót vagy a TorBox API-kulcsot.
+- A manifest tokenből csak SHA-256 hash kerül az admin adatbázisba.
+- Jelenlegi verzió: 1.6.0.
 
-1.5.2-ES KIADÁS ÚJDONSÁGAI
+1.6.0-ÁS KIADÁS ÚJDONSÁGAI
 --------------------------
-- IMDb keresés után cím-alapú fallback, ha nincs IMDb-találat.
-- A fallback címkeresés eredményei szigorúan relevancia alapján szűrve vannak.
-- Sorozatoknál javult az évad/epizód felismerés season marker nélküli fájlneveknél.
-- A tokenes configure oldalon közvetlenül másolható az aktuális manifest URL.
-- A TorBox által cache-elt streamek prioritást kapnak.
-- Azonos cache állapot mellett a magasabb felbontás kerül előre: 2160p → 1080p → 720p.
-- Azonos felbontáson belül a stream minőségi tulajdonságai alapján történik a rendezés.
-- A Dolby Vision, HDR10+, HDR10 és HDR formátumok külön prioritást kapnak.
-- A forrásminőség, videocodec és hangminőség is bekerül a rendezésbe.
-- A seederek száma csak végső döntő szempontként szerepel.
-- Az addon verziója: 1.5.2.
-
+- Új adminisztrációs panel a manifestek kezelésére.
+- Admin panel HTTP Basic Authentication védelemmel.
+- Manifestenkénti használati statisztikák.
+- Manifest használati előzmények.
+- Aktív/inaktív manifest állapot kezelése.
+- Manifest törlés.
+- SQLite alapú adminisztrációs adatbázis.
+- TorBox seedelés ki- és bekapcsolható a konfiguráció során.
+- A seedelési beállítás személyes manifestenként kerül tárolásra.
+- A seedelési állapot megjelenik az admin panelen.
+- A configure oldalról közvetlenül elérhető az admin panel.
+- Az admin panelről közvetlenül elérhető a configure oldal.
+- A konfigurációs adatok továbbra is AES-256-GCM titkosított tokenben maradnak.
+- Az admin adatbázisban nem kerülnek tárolásra az nCore vagy TorBox hitelesítési adatok.
+- A manifestek azonosításához a token SHA-256 hash-e kerül tárolásra.
+- A Docker környezet támogatja a SQLite natív modul használatához szükséges build eszközöket.
+- Az addon verziója: 1.6.0.
 SZÜKSÉGES
 ---------
 - nCore fiók
@@ -105,9 +118,53 @@ Tokenes configure:
 
 A meglévő tokenes configure oldal ugyanahhoz a manifesthez kapcsolódhat, így az URL nem változik csak azért, mert újra megnyitod a konfigurációs oldalt.
 
+ADMIN PANEL
+-----------
+Az admin panel címe:
+
+    https://SAJAT-DOMAIN/admin
+
+Az admin panel HTTP Basic Authentication használ. A hitelesítéshez a `.env` fájlban megadott `ADMIN_PASSWORD` érték szükséges.
+
+Az admin panel fő funkciói:
+- manifestek listázása
+- összes és aktív manifestek száma
+- seedelést használó manifestek száma
+- használati statisztikák
+- manifest használati előzmények
+- aktív/inaktív állapot kezelése
+- manifest törlése
+- automatikus frissítés
+
+Az admin panelről közvetlenül elérhető a configure oldal.
+
+ADMINISZTRÁCIÓS ADATBÁZIS
+------------------------
+Az admin panel SQLite adatbázist használ:
+
+    data/admin.db
+
+A Docker Compose a `data/` könyvtárat perzisztens kötetként használja.
+
+Az adatbázis manifest metaadatokat és használati adatokat tárol, például:
+- manifest azonosító
+- nCore felhasználónév
+- seedelési állapot
+- létrehozási idő
+- utolsó használat
+- használati számláló
+- aktív/inaktív állapot
+- használati előzmények
+- IMDb ID
+- stream típus
+- torrent/release cím
+- használati időpont
+
+A konfigurációs token teljes értéke nem kerül az adatbázisba. A manifest azonosításához a token SHA-256 hash-e kerül tárolásra.
+
 BIZTONSÁG
 ---------
-A konfiguráció nem adatbázisban tárolódik.
+A konfigurációs hitelesítő adatok nem kerülnek az adminisztrációs adatbázisba. Az adatbázis csak a manifesthez kapcsolódó metaadatokat és használati adatokat tárolja.
 
 Az nCore username, nCore password és TorBox API-kulcs AES-256-GCM titkosítással kerül konfigurációs tokenbe.
 
@@ -313,7 +370,7 @@ docker-compose.yml
 
 VERZIÓ
 ------
-1.5
+1.6.0
 
 EREDET
 ------
@@ -360,22 +417,30 @@ MAIN MODIFICATIONS
 - Improved series season/episode matching for torrent filenames that do not contain S01/S02 season markers but whose torrent title contains the season information.
 - Added a "Copy current manifest" button to the token-specific configure page, allowing the current token's manifest URL to be copied directly to the clipboard.
 - Existing token-based configure pages continue to preserve their existing manifest URL.
-- Current addon version: 1.5.2.
+- Added a password-protected admin panel using HTTP Basic Authentication.
+- Added per-manifest usage statistics and request history.
+- Added manifest activation, deactivation and deletion.
+- Added a SQLite-based administration database.
+- Added optional TorBox seeding configuration per personal manifest.
+- Added seed status information to the admin panel.
+- nCore passwords and TorBox API keys are not stored in the administration database.
+- Only a SHA-256 hash of the configuration token is stored for manifest identification.
+- Current addon version: 1.6.0.
 
-WHAT'S NEW IN 1.5.2
+WHAT'S NEW IN 1.6.0
 --------------------
-- IMDb title fallback when IMDb search returns no results.
-- Fallback title-search results are strictly filtered for relevance.
-- Improved series season/episode matching for filenames without explicit season markers.
-- Added direct copying of the current manifest URL from the token-specific configure page.
-- TorBox cached streams are prioritized.
-- Higher resolutions are prioritized within the same cache state: 2160p → 1080p → 720p.
-- Streams with the same cache state and resolution are ranked by quality characteristics.
-- Dolby Vision, HDR10+, HDR10 and HDR receive separate quality priorities.
-- Source quality, video codec and audio quality are also considered.
-- Seeder count is used only as a final tie-breaker.
-- Current addon version: 1.5.2.
-
+- Added a password-protected admin panel.
+- Added per-manifest usage statistics.
+- Added manifest usage history.
+- Added active/inactive manifest management.
+- Added manifest deletion.
+- Added SQLite-based administration storage.
+- Added optional TorBox seeding configuration.
+- Seeding preference is stored per personal manifest.
+- Added navigation between the configure page and admin panel.
+- Configuration credentials remain protected inside AES-256-GCM encrypted tokens.
+- nCore passwords and TorBox API keys are not stored in the administration database.
+- Only a SHA-256 token hash is stored for manifest identification.
 REQUIREMENTS
 ------------
 - nCore account
@@ -441,7 +506,7 @@ The existing token-based configure page can keep using the same manifest, so the
 
 SECURITY
 --------
-The configuration is not stored in a database.
+Configuration credentials are not stored in the administration database. The administration database stores only manifest metadata and usage information.
 
 The nCore username, nCore password and TorBox API key are stored inside an AES-256-GCM encrypted configuration token.
 
@@ -649,7 +714,7 @@ Important files:
 
 VERSION
 -------
-Current addon version: 1.5
+Current addon version: 1.6.0
 
 ORIGINAL PROJECT / FORK
 -----------------------
