@@ -78,14 +78,15 @@ const resolveInFlight = new Map();
 const selections = new Map();
 const myListCache = new Map();
 const streamListCache = new Map();
+const streamInFlight = new Map();
 
 const RESOLVE_TTL = 20 * 60 * 1000;
 const SELECTION_TTL = 90 * 60 * 1000;
-const MYLIST_TTL = 15 * 1000;
+const MYLIST_TTL = 3 * 60 * 1000;
 
 const STREAM_LIST_TTL_MS = toPositiveInt(
   process.env.STREAM_LIST_TTL_MS,
-  15000
+  60000
 );
 
 const STREAM_RESULT_LIMIT = Math.min(
@@ -1141,7 +1142,7 @@ function createApp(deps = {}) {
 
             preferredFile:
               sel.season && sel.episode
-                ? (sel.fileName || null)
+                ? null
                 : (
                     sel.fileName ||
                     torrentFileName
@@ -1282,135 +1283,108 @@ function createApp(deps = {}) {
         }
 
         // ---------------------------------------------------------------
-        // nCore keresés
+        // Párhuzamos nCore keresés + TorBox mylist + global cache check
         // ---------------------------------------------------------------
 
-        const results =
-          await searchClient({
-            username: creds.username,
-            password: creds.password,
-            query: parsedId.raw,
-          });
+        let inFlightPromise = streamInFlight.get(streamCacheKey);
 
-        // Admin előzmény teszt
-        addUsage({
-          token,
-          imdbId: parsedId.raw,
-          streamType,
-          title: results?.[0]?.title || parsedId.raw,
-        });
+        if (!inFlightPromise) {
+          inFlightPromise = (async () => {
+            // 1. nCore keresés és TorBox mylist párhuzamos indítása
+            const myListPromise = (async () => {
+              const map = new Map();
+              try {
+                const key = shortHash(creds.torboxApiKey);
+                const entry = myListCache.get(key);
+                let list;
 
-        // ---------------------------------------------------------------
-        // TorBox mylist
-        // ---------------------------------------------------------------
+                if (entry?.expiresAt > Date.now()) {
+                  list = entry.list;
+                } else {
+                  list = await withTimeout(
+                    _getMyTorrents({ apiKey: creds.torboxApiKey }),
+                    8000
+                  );
+                  myListCache.set(key, {
+                    list,
+                    expiresAt: Date.now() + MYLIST_TTL,
+                  });
+                }
 
-        let myListByHash = new Map();
-
-        try {
-          const key =
-            shortHash(
-              creds.torboxApiKey
-            );
-
-          const entry =
-            myListCache.get(key);
-
-          let list;
-
-          if (
-            entry?.expiresAt >
-            Date.now()
-          ) {
-            list = entry.list;
-          } else {
-            list =
-              await withTimeout(
-                _getMyTorrents({
-                  apiKey:
-                    creds.torboxApiKey,
-                }),
-                8000
-              );
-
-            myListCache.set(
-              key,
-              {
-                list,
-                expiresAt:
-                  Date.now() +
-                  MYLIST_TTL,
+                for (const t of list || []) {
+                  if (isTorrentStale(t)) continue;
+                  const h = String(t?.hash || t?.info_hash || '').toLowerCase();
+                  if (/^[a-f0-9]{40}$/.test(h)) {
+                    const prev = map.get(h);
+                    if (!prev || (!isTorrentReady(prev) && isTorrentReady(t))) {
+                      map.set(h, t);
+                    }
+                  }
+                }
+              } catch {
+                // ignore
               }
-            );
-          }
+              return map;
+            })();
 
-          for (const t of list || []) {
-            const h = String(
-              t?.hash ||
-              t?.info_hash ||
-              ''
-            ).toLowerCase();
+            const [results, myListByHash] = await Promise.all([
+              searchClient({
+                username: creds.username,
+                password: creds.password,
+                query: parsedId.raw,
+              }),
+              myListPromise,
+            ]);
 
-            if (
-              /^[a-f0-9]{40}$/.test(h)
-            ) {
-              myListByHash.set(h, t);
-            }
-          }
-        } catch {
-          // ignore
-        }
+            addUsage({
+              token,
+              imdbId: parsedId.raw,
+              streamType,
+              title: results?.[0]?.title || parsedId.raw,
+            });
 
-        // ---------------------------------------------------------------
-        // TorBox global cache check
-        // ---------------------------------------------------------------
+            // 2. TorBox global cache check
+            let cachedMap = new Map();
 
-        let cachedMap = new Map();
-
-        if (
-          ENABLE_STREAM_CACHE_PRECHECK
-        ) {
-          try {
-            const hashes =
-              results
-                .slice(
-                  0,
-                  STREAM_RESULT_LIMIT
-                )
-                .map(
-                  (r) =>
+            if (ENABLE_STREAM_CACHE_PRECHECK) {
+              try {
+                const hashes = results
+                  .slice(0, STREAM_RESULT_LIMIT)
+                  .map((r) =>
                     String(
                       r.infoHash ||
-                      extractHash(
-                        normalizeMagnet(
-                          r.magnet
-                        )
-                      ) ||
+                      extractHash(normalizeMagnet(r.magnet)) ||
                       ''
                     ).toLowerCase()
-                )
-                .filter(Boolean);
+                  )
+                  .filter(Boolean);
 
-            cachedMap =
-              await withTimeout(
-                _checkCached({
-                  apiKey:
-                    creds.torboxApiKey,
-                  infoHashes: hashes,
-                }),
-                8000
-              );
+                cachedMap = await withTimeout(
+                  _checkCached({
+                    apiKey: creds.torboxApiKey,
+                    infoHashes: hashes,
+                  }),
+                  5000
+                );
+              } catch {
+                // ignore
+              }
+            }
 
-            console.error(
-              '[TORBOX-CHECKCACHED-MAP]',
-              JSON.stringify(
-                Object.fromEntries(
-                  cachedMap
-                )
-              )
-            );
-          } catch {
-            // ignore
-          }
+            return { results, myListByHash, cachedMap };
+          })();
+
+          streamInFlight.set(streamCacheKey, inFlightPromise);
+        }
+
+        let results;
+        let myListByHash;
+        let cachedMap;
+
+        try {
+          ({ results, myListByHash, cachedMap } = await inFlightPromise);
+        } finally {
+          streamInFlight.delete(streamCacheKey);
         }
 
         // ---------------------------------------------------------------
@@ -1485,7 +1459,7 @@ function createApp(deps = {}) {
 
           if (isReady) {
             cached = true;
-          } else if (inMyList && !isTorrentStale(inMyList)) {
+          } else if (inMyList) {
             cached = false;
           } else if (
             globalCached != null
