@@ -1141,7 +1141,7 @@ function createApp(deps = {}) {
 
             preferredFile:
               sel.season && sel.episode
-                ? null
+                ? (sel.fileName || null)
                 : (
                     sel.fileName ||
                     torrentFileName
