@@ -37,6 +37,7 @@ const {
   resolveLink,
   infoHashFromMagnet,
   isTorrentReady,
+  isTorrentStale,
   getTorrentState,
   getTorrentProgress,
 } = require('../lib/torbox-client');
@@ -1484,7 +1485,7 @@ function createApp(deps = {}) {
 
           if (isReady) {
             cached = true;
-          } else if (inMyList) {
+          } else if (inMyList && !isTorrentStale(inMyList)) {
             cached = false;
           } else if (
             globalCached != null
