@@ -55,6 +55,19 @@ FŐBB MÓDOSÍTÁSOK
 - A manifestek azonosításához a token SHA-256 hash-e kerül tárolásra.
 - A Docker környezet támogatja a SQLite natív modul használatához szükséges build eszközöket.
 - Az addon verziója: 1.6.0.
+*******************************
+--------------------------------------
+- Jelentősen gyorsított stream listázás: az nCore keresés és a TorBox fióklista (mylist) lekérdezése párhuzamosan fut.
+- Memória-cache bevezetése a letöltött .torrent metaadatokra (6 órás TTL) és az IMDb címekre (24 órás TTL), így sorozatoknál epizódléptetéskor nem tölti le újra a torrentfájlokat.
+- Sorozatoknál előzetes cím alapú évad/epizód szűrés még a .torrent fájlok letöltése előtt, elkerülve a felesleges nCore kéréseket.
+- Párhuzamos, dupla Stremio kérések összevonása (in-flight deduplikálás), valamint 6 órás nCore munkamenet-cookie cache.
+- Növelt metaadat-feldolgozási párhuzamosság és optimalizált cache élettartamok (mylist: 3 perc, stream lista: 60 mp).
+- Lapozott TorBox mylist lekérdezés (limit=1000), így 1000 feletti tárolt torrent esetén is minden elem megtalálható.
+- Közvetlen torrent ID alapú állapotlekérdezés a resolve folyamat során, amely független a TorBox fiókban tárolt torrentek számától.
+- Lejárt (expired / hiányzó fájlú) és hibás TorBox bejegyzések automatikus felismerése, törlése és újrahozzáadása lejátszás előtt, a sorban álló (queued) torrentek védelme mellett.
+- Lejárt saját torrentek kiszűrése a Stremio stream listából a téves [COMPLETED 100%] jelzések elkerülésére.
+- Megbízhatóbb .torrent fájl feltöltés és közvetlen letöltési link ellenőrzés a TorBox API felé
+- ***************************************************
 SZÜKSÉGES
 ---------
 - nCore fiók
@@ -441,6 +454,18 @@ WHAT'S NEW IN 1.6.0
 - Configuration credentials remain protected inside AES-256-GCM encrypted tokens.
 - nCore passwords and TorBox API keys are not stored in the administration database.
 - Only a SHA-256 token hash is stored for manifest identification.
+- **********************************
+-------------------------------
+- Significantly faster stream listing by running nCore search and TorBox mylist fetching in parallel.
+- Added in-memory caching for parsed .torrent metadata (6-hour TTL) and IMDb titles (24-hour TTL), avoiding redundant .torrent downloads when switching episodes.
+- Added title-based season/episode pre-filtering for series before downloading .torrent files from nCore.
+- Added request deduplication for concurrent duplicate Stremio stream requests and extended nCore session cookie caching to 6 hours.
+- Increased metadata enrichment concurrency and tuned cache TTLs (mylist: 3 minutes, stream list: 60 seconds).
+- Added paginated TorBox mylist fetching (limit=1000) to support accounts with more than 1,000 stored torrents.
+- Added direct torrent-ID status polling during resolve so playback does not depend on account list size.
+- Automatic detection, cleanup, and re-adding of expired/stale or errored TorBox torrents prior to playback, while protecting queued downloads.
+- Filtered out expired personal torrents from the Stremio stream list to prevent false [COMPLETED 100%] tags.
+- Improved .torrent file upload naming and direct download link validation against the TorBox API.
 REQUIREMENTS
 ------------
 - nCore account
